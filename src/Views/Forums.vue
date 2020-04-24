@@ -135,32 +135,36 @@ export default {
       this.refresh();
     },
     deleteForum(item) {
-      this.db
-        .collection("entries")
-        .get()
-        .then(entries => {
+      this.db.collection("entries").get().then(entries => 
+      {
           let forumWithEntries = false;
-          entries.forEach(entry => {
-            if (
-              entry.data().parent != null &&
-              entry.data().parent.id === item.id
-            ) {
+          entries.forEach(entry => 
+          {
+            if (entry.data().parent != null && entry.data().parent.id === item.id)
+            {
               forumWithEntries = true;
             }
           });
-          if (!forumWithEntries) {
-            this.db
-              .collection("entries")
-              .doc(item.id)
-              .delete()
-              .then(() => {
+          if (!forumWithEntries) 
+          {
+            this.db.collection("entries").doc(item.id).delete().then(() => 
+            {
                 console.log("Document successfully deleted!");
                 this.refresh();
-              })
-              .catch(function(error) {
-                console.error("Error removing document: ", error);
-              });
-          } else {
+                let newForumStatus  = 
+                {
+                  type: 'success',
+                  message: "Your forum was deleted",
+                  icon: 'mdi-checkbox-marked-circle-outline'
+                }
+                this.showNewForumStatus(newForumStatus)
+            })
+            .catch(function(error) {
+              console.error("Error removing document: ", error);
+            });
+          } 
+          else 
+          {
             let newForumStatus  = 
             {
               type: 'error',

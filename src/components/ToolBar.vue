@@ -7,7 +7,7 @@
     </v-toolbar-items>
 
     <v-spacer></v-spacer>
-
+    
     <v-toolbar-items>
       <template v-if="user.loggedIn">
         <v-btn text @click="enableOptions = !enableOptions">{{user.data.email}}</v-btn>
@@ -42,7 +42,16 @@
                 label="Confirm password to delete account"
                 @click:append="showpassword = !showpassword"
                 prepend-icon="mdi-lock"
+                @keyup.enter="deleteAccount"
             ></v-text-field>
+            <v-alert
+            v-if="status != null"
+            :type="status.type"
+            outlined
+            text
+            :icon="status.icon"
+            transition="scale-transition"
+            >{{status.message}}</v-alert>
             </v-col>
           </v-row>
         </v-container>
@@ -50,7 +59,7 @@
       <v-card-actions style="background-color:#1976d2">
         <v-spacer></v-spacer>
         <v-btn color="white" text @click="deleteOption = false">Close</v-btn>
-        <v-btn color="white" text @click="deleteAccount" @hideDeleteOptions="deleteOption=false">Delete</v-btn>
+        <v-btn color="white" text @click="deleteAccount">Delete</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -70,6 +79,7 @@ export default {
   },
   data() {
     return {
+      status: null,
       confirmpassword: "",
       showpassword: false,
       deleteOption: false,
@@ -79,16 +89,16 @@ export default {
   },
   methods: {
     signOut() {
-      firebase
-        .auth()
-        .signOut()
-        .then(() => {
-          if (this.$route.name !== "forums") {
-            console.log(this.user)
-            this.$router.replace({
-              name: "forums"
-            });
-          }
+      firebase.auth().signOut().then(() => 
+      {
+        if (this.$route.name !== "forums") 
+        {
+          console.log(this.user)
+          this.$router.replace(
+          {
+            name: "forums"
+          });
+        }
         });
     },
     deleteAccount() {
@@ -108,29 +118,58 @@ export default {
           }
         }
         console.log("Se revisaron las entries: deletable: " + deletable)
+        let deleteAccountStatus = null
         if(deletable)
         {
           let user = firebase.auth().currentUser
           var credential = firebase.auth.EmailAuthProvider.credential(user.email, this.confirmpassword)
           user.reauthenticateWithCredential(credential).then(() => 
           {
-            user.delete().then(function() 
-            {
-              console.log("User account deleted")
-            }).catch(error => 
-            {
-              console.log(error.message)
-            })
             console.log(user.email)
             this.db.collection("users").doc(user.email).delete().then(function() 
             {
               console.log("User profile deleted ");
-            }).catch(function(error) {
-              console.error("Error removing document: ", error);
+              user.delete().then(function() 
+              {
+                console.log("User account deleted")
+                deleteAccountStatus  = 
+                {
+                    type: 'success',
+                    message: 'Your account was deleted successfully',
+                    icon: 'mdi-checkbox-marked-circle-outline'
+                }
+              }).catch(error => 
+              {
+                console.log("Error en user.delete: " + error.message)
+              })
+            }).catch(function(error) 
+            {
+              console.error("Error en this.db.delete: " + error.message);
             })
+          }).catch((error) => 
+          {
+            if(error.code === "auth/wrong-password")
+            {
+              deleteAccountStatus  = 
+              {
+                  type: 'error',
+                  message: "Wrong Password",
+                  icon: 'mdi-skull-outline'
+              }
+              console.log(deleteAccountStatus)
+            }
           })
         }
-        this.deleteOption = false
+        else
+        {
+          deleteAccountStatus  = 
+          {
+              type: 'error',
+              message: "Accounts with entries can't be deleted",
+              icon: 'mdi-skull-outline'
+          }
+        }
+        this.showStatus(deleteAccountStatus)
       }).catch(error =>
       {
         console.log(error.message)
@@ -146,24 +185,21 @@ export default {
       {
         name: "updateAccount"
       });
+    },
+    showStatus(status)
+    {
+      this.status = status
+      setTimeout(() => this.status = null, 3000);
     }
   }
 };
 </script>
 
 <style scoped>
-.v-toolbar--prominent .v-toolbar__content {
-  align-items: center;
+.v-alert {
+    margin-bottom: 0;
 }
-.v-list-item {
-  background-color: transparent;
-  height: 100%;
-}
-.options{
-  /* height: 100%; */
-  background: transparent;
-  color: #fff;
-  padding-bottom: 0;
-  padding-top: 0;
+.container {
+    padding-bottom: 0;
 }
 </style>
