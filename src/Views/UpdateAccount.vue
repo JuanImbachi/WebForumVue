@@ -111,28 +111,29 @@ export default {
         refresh()
         {
             let user = firebase.auth().currentUser
-                this.db.collection('users').doc(user.email).get().then((userdb) =>
-                {
-                    this.name = userdb.data().name
-                    this.lastname = userdb.data().lastname
-                    this.email = userdb.id
-                }).catch(error => {
-                    console.log(error.message)
-                })
+            this.db.collection('users').doc(user.email).get().then((userdb) =>
+            {
+                this.name = userdb.data().name
+                this.lastname = userdb.data().lastname
+                this.email = userdb.id
+            }).catch(error => {
+                console.log(error.message)
+            })
         },
         updateAccount()
         {
             let user = firebase.auth().currentUser
             var credential = firebase.auth.EmailAuthProvider.credential(user.email, this.currentPassword)
             let oldEmail = user.email.toString()
-            user.reauthenticateWithCredential(credential).then(() => 
+
+            if(oldEmail != this.email)
             {
-                if(oldEmail != this.email)
+                let db = this.db
+                let newEmail = this.email.toString()
+                let newName = this.name.toString()
+                let newLastName = this.lastname.toString()
+                user.reauthenticateWithCredential(credential).then(() => 
                 {
-                    let db = this.db
-                    let newEmail = this.email
-                    let newName = this.name
-                    let newLastName = this.lastname
                     user.updateEmail(this.email).then(function() 
                     {
                         console.log("Se actualizó el email")
@@ -151,8 +152,21 @@ export default {
                                 active: activeDoc
                             }).then(() => 
                             {
+                                db.collection('entries').get().then((entries) =>
+                                {
+                                    entries.forEach(entry => 
+                                    {
+                                        if(entry.data().creator.id === oldEmail)
+                                        {
+                                            console.log("se actualizó un entry")
+                                            let refCreator = db.collection('users').doc(newEmail)
+                                            db.collection('entries').doc(entry.id).update({creator: refCreator})
+                                        }
+                                    });
+                                })
                                 console.log("se creó un documento nuevo")
                                 db.collection('users').doc(oldEmail).delete()
+                                
                             }).catch(error => 
                             {
                                 console.log("Erro al crear doc nuevo :" + error.message)
@@ -163,18 +177,27 @@ export default {
                     }).catch(function(error) {
                         console.log(error.message)
                     });
-                }
-                user.updatePassword(this.password).then(function() 
+                }).catch((err) => 
                 {
-                    console.log("updatedpassword")
-                }).catch(function(error) {
-                    console.log(error.message)
+                    console.log(err.message)
                 });
-                
-                
-            }).catch((err) => {
-                console.log(err.message)
-            });
+            }
+            if (this.password != "" && this.currentPassword != "") 
+            {
+                user.reauthenticateWithCredential(credential).then(() => 
+                {
+                    user.updatePassword(this.password).then(function() 
+                    {
+                        console.log("updatedpassword")
+                    }).catch(function(error) {
+                        console.log(error.message)
+                    });
+                })
+            }
+        },
+        refreshUser()
+        {
+            this.$store.dispatch("fetchUser", firebase.auth().currentUser);
         }
     },
     computed: {

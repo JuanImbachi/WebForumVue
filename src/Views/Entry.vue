@@ -31,6 +31,7 @@
             <v-spacer></v-spacer>
             <v-icon v-if="verifyEdit(entry.creator.id) && !edit" @click="edit = !edit">mdi-tooltip-edit-outline</v-icon>
             <v-icon color="green" v-if="edit" @click="save">mdi-check-circle-outline</v-icon>
+            <v-icon color="red" v-if="edit" @click="save">mdi-trash-can-outline</v-icon>
           </v-card-actions>
         </v-card>
       </v-flex>

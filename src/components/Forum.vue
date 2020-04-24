@@ -42,7 +42,9 @@
               <v-icon large color="white" left @click="reply = true">mdi-reply-all</v-icon>
             </v-card-actions>
           </v-card>
+
           <entry v-for="entry in forum.entries" :key="entry.id" :entry="entry" @refresh="refresh" @showStatus="showStatus"></entry>
+            
             <v-row justify="center">
               <v-dialog v-model="reply" persistent max-width="600px">
                 <v-card>
