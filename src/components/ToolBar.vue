@@ -102,6 +102,7 @@ export default {
         });
     },
     deleteAccount() {
+      let deleteError =  false
       this.enableOptions = false
       this.db.collection('entries').get().then((entries) =>
       {
@@ -132,19 +133,25 @@ export default {
               user.delete().then(function() 
               {
                 console.log("User account deleted")
+              }).catch((error) => 
+              {
                 deleteAccountStatus  = 
                 {
-                    type: 'success',
-                    message: 'Your account was deleted successfully',
-                    icon: 'mdi-checkbox-marked-circle-outline'
+                    type: 'error',
+                    message: error.message,
+                    icon: 'mdi-skull-outline'
                 }
-              }).catch(error => 
-              {
-                console.log("Error en user.delete: " + error.message)
+                deleteError = true
               })
-            }).catch(function(error) 
+            }).catch((error)=>
             {
-              console.error("Error en this.db.delete: " + error.message);
+              deleteAccountStatus  = 
+              {
+                  type: 'error',
+                  message: error.message,
+                  icon: 'mdi-skull-outline'
+              }
+              deleteError = true
             })
           }).catch((error) => 
           {
@@ -153,11 +160,32 @@ export default {
               deleteAccountStatus  = 
               {
                   type: 'error',
-                  message: "Wrong Password",
+                  message: error.message,
                   icon: 'mdi-skull-outline'
               }
-              console.log(deleteAccountStatus)
             }
+            else if(error.code === "auth/too-many-requests")
+            {
+              deleteAccountStatus  = 
+              {
+                  type: 'error',
+                  message: error.message,
+                  icon: 'mdi-skull-outline'
+              }
+            }
+            deleteError = true
+          }).finally(() => 
+          {
+            if(deleteError == false)
+            {
+              deleteAccountStatus  = 
+              {
+                  type: 'success',
+                  message: 'Your account was deleted successfully',
+                  icon: 'mdi-checkbox-marked-circle-outline'
+              }
+            }
+            this.showStatus(deleteAccountStatus)
           })
         }
         else
@@ -168,8 +196,8 @@ export default {
               message: "Accounts with entries can't be deleted",
               icon: 'mdi-skull-outline'
           }
+          this.showStatus(deleteAccountStatus)
         }
-        this.showStatus(deleteAccountStatus)
       }).catch(error =>
       {
         console.log(error.message)
@@ -189,7 +217,14 @@ export default {
     showStatus(status)
     {
       this.status = status
-      setTimeout(() => this.status = null, 3000);
+      if(status.type === "error")
+      {
+        setTimeout(() => {this.status = null;}, 3000);
+      }
+      else if(status.type === "success")
+      {
+        setTimeout(() => {this.status = null; this.deleteOption = false}, 3000);
+      }
     }
   }
 };

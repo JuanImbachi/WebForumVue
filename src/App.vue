@@ -1,6 +1,14 @@
 <template>
   <div id="app">
-    <Toolbar></Toolbar>
+    <Toolbar @showStatus="showStatus"></Toolbar>
+    <v-alert
+    v-if="status != null"
+    :type="status.type"
+    outlined
+    text
+    :icon="status.icon"
+    transition="scale-transition"
+    >{{status.message}}</v-alert>
     <router-view></router-view>
   </div>
 </template>
@@ -11,6 +19,11 @@ import Toolbar from "./components/ToolBar";
 
 export default {
   name: 'App',
+  data(){
+    return{
+       status: null
+    }
+  },
   computed: {
     ...mapGetters(
     {
@@ -18,7 +31,11 @@ export default {
     })
   },
   methods: {
-    
+    showStatus(status)
+    {
+      this.status = status
+      setTimeout(() => {this.status = null}, 3000);
+    }
   },
   components: {
     Toolbar
