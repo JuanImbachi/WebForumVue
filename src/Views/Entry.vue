@@ -12,7 +12,7 @@
                 </v-col>
                 <v-col cols="6">
                   <b>Creator:</b>
-                  {{entry.creator}}
+                  {{entry.creator.id}}
                 </v-col>
               </v-row>
               <hr />
@@ -29,7 +29,7 @@
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-icon v-if="verifyEdit(entry.creator) && !edit" @click="edit = !edit">mdi-tooltip-edit-outline</v-icon>
+            <v-icon v-if="verifyEdit(entry.creator.id) && !edit" @click="edit = !edit">mdi-tooltip-edit-outline</v-icon>
             <v-icon color="green" v-if="edit" @click="save">mdi-check-circle-outline</v-icon>
           </v-card-actions>
         </v-card>

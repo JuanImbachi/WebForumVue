@@ -122,7 +122,7 @@ export default {
                 {
                     creation_date: new Date(Date.now()),
                     id: newEntryId,
-                    creator: this.user.data.email,
+                    creator: this.db.doc("users/" + this.user.data.email),
                     parent: this.db.doc("entries/" + this.forum.id),
                     subject: this.replySubject
                 }).catch(function(error) {
@@ -162,7 +162,6 @@ export default {
           {
             if (entry.data().id === this.$route.params.id) 
             {
-              console.log(entry)
               this.forum = entry.data();
             } 
             else if (entry.data().parent !== null && entry.data().parent.id === this.$route.params.id) 

@@ -92,42 +92,56 @@ export default {
         });
     },
     deleteAccount() {
+      this.enableOptions = false
       this.db.collection('entries').get().then((entries) =>
       {
         let deletable = true
-        for (let index = 0; index < entries.length && deletable; index++) 
+        console.log("Se revisarán: " + entries.size + " entries")
+        for (let index = 0; index < entries.size && deletable; index++) 
         {
           const entry = entries.docs[index];
+          console.log("Creador Entry 1: " + entry.data().creator.id)
+          console.log("Usuario a borrar: " + this.user.data.email)
           if(entry.data().creator.id === this.user.data.email)
           {
             deletable = false
           }
         }
+        console.log("Se revisaron las entries: deletable: " + deletable)
         if(deletable)
         {
           let user = firebase.auth().currentUser
-          let userEmail= user.email
-          var credential = firebase.auth.EmailAuthProvider.credential(userEmail, this.confirmpassword)
+          var credential = firebase.auth.EmailAuthProvider.credential(user.email, this.confirmpassword)
           user.reauthenticateWithCredential(credential).then(() => 
           {
-            let db = this.db
             user.delete().then(function() 
             {
-              db.collection('users').doc(userEmail).delete()
-              
+              console.log("User account deleted")
             }).catch(error => 
             {
               console.log(error.message)
             })
-           })
+            console.log(user.email)
+            this.db.collection("users").doc(user.email).delete().then(function() 
+            {
+              console.log("User profile deleted ");
+            }).catch(function(error) {
+              console.error("Error removing document: ", error);
+            })
+          })
         }
         this.deleteOption = false
       }).catch(error =>
       {
         console.log(error.message)
+      }).finally(() =>
+      {
+        this.confirmpassword = ""
+        this.showpassword = false;
       })
     },
     editAccount(){
+      this.enableOptions = false
       this.$router.replace(
       {
         name: "updateAccount"
