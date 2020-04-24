@@ -219,7 +219,7 @@ export default {
       this.status = status
       if(status.type === "error")
       {
-        setTimeout(() => {this.status = null;}, 3000);
+        setTimeout(() => {this.status = null}, 3000);
       }
       else if(status.type === "success")
       {

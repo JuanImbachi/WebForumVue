@@ -45,6 +45,7 @@
                                     label="Password"
                                     @click:append="showpassword = !showpassword"
                                     prepend-icon="mdi-lock"
+                                    @keyup.enter="signUp"
                                 ></v-text-field>
                             </v-form>
                         </v-card-text>
