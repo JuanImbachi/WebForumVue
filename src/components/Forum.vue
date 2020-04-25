@@ -42,7 +42,7 @@
               <h3 align="left">Posdata:</h3>
               <div class="content">
                 <v-textarea
-                :rules="subjectRules"
+                :rules="postdataRules"
                 v-model="forum.postdata"
                 :disabled="!edit"
                 cleareable
@@ -126,14 +126,11 @@ export default {
       subjectRules: 
       [
         subject => !!subject || "Subject is required",
-        subject =>
-        subject.length <= 300 || "Title must be less than 300 characters"
+        subject => subject.length <= 300 || "Subject must be less than 300 characters"
       ],
-      postDataRules: 
+      postdataRules: 
       [
-        postData => !!postData || "Subject is required",
-        postData =>
-        postData.length <= 300 || "Title must be less than 300 characters"
+        postdata => postdata.length <= 300 || "Postdata must be less than 300 characters"
       ]
     };
   },
