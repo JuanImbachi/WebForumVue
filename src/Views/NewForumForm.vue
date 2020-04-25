@@ -76,7 +76,14 @@ export default {
                   parent: null,
                   title: this.title,
                   subject: this.subject
-              }).catch(function(error) {
+              }).then(() => 
+              {
+                this.db.collection('users').doc(user.email).update(
+                {
+                  numEntries: firebase.firestore.FieldValue.increment(1)
+                });
+              }).catch(function(error) 
+              {
                 this.newForumStatus  = 
                 {
                   type: 'error',

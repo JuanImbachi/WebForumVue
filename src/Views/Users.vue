@@ -52,32 +52,43 @@ export default {
             sortable: true,
             value: 'active',
             align: 'center'
+          },
+          {
+            text: '# Entries',
+            sortable: true,
+            value: 'numEntries',
+            align: 'center'
           }
         ]
       },
     },
-    methods:{
-         filterText (value, search) {
+    methods:
+    {
+      filterText(value, search) 
+      {
         return value != null &&
-          search != null &&
-          typeof value === 'string' &&
-          value.toString().indexOf(search) !== -1
+        search != null &&
+        typeof value === 'string' &&
+        value.toString().indexOf(search) !== -1
       },
-        refresh()
+      refresh()
+      {
+        this.db.collection("users").get().then((users) => 
         {
-            this.db.collection("users").get().then((users) => {
-                    users.forEach(userdb => 
-                    {
-                        let user = {
-                          name: userdb.data().name,
-                          lastname: userdb.data().lastname,
-                          email: userdb.id,
-                          active: userdb.data().active
-                        }
-                        this.users.push(user)
-                    });
-                })
-        }
+          users.forEach(userdb => 
+          {
+              let user = {
+                name: userdb.data().name,
+                lastname: userdb.data().lastname,
+                email: userdb.id,
+                active: userdb.data().active,
+                numEntries: userdb.data().numEntries
+              }
+              this.users.push(user)
+          });
+        })
+      },
+
     },
     mounted: function () {
         this.refresh()

@@ -144,6 +144,10 @@ export default {
           this.db.collection("entries").doc(entryId).delete().then(() => 
           {
               console.log("Document successfully deleted!");
+              this.db.collection('users').doc(this.user.data.email).update(
+              {
+                numEntries: firebase.firestore.FieldValue.increment(-1)
+              });
               this.$emit('refresh')
               let deleteStatus  = 
               {
