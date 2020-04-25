@@ -1,16 +1,8 @@
 <template>
-  <div id="app">
-    <Toolbar @showStatus="showStatus"></Toolbar>
-    <v-alert
-    v-if="status != null"
-    :type="status.type"
-    outlined
-    text
-    :icon="status.icon"
-    transition="scale-transition"
-    >{{status.message}}</v-alert>
+  <v-app id="app">
+    <Toolbar></Toolbar>
     <router-view></router-view>
-  </div>
+  </v-app>
 </template>
 
 <script>
@@ -18,24 +10,12 @@ import { mapGetters } from "vuex";
 import Toolbar from "./components/ToolBar";
 
 export default {
-  name: 'App',
-  data(){
-    return{
-       status: null
-    }
-  },
+  name: 'WebForumVue',
   computed: {
     ...mapGetters(
     {
       user: "user"
     })
-  },
-  methods: {
-    showStatus(status)
-    {
-      this.status = status
-      setTimeout(() => {this.status = null}, 3000);
-    }
   },
   components: {
     Toolbar
