@@ -41,12 +41,21 @@
               <v-divider></v-divider>
               <h3 align="left">Posdata:</h3>
               <div class="content">
-                <p align="justify">Posdata Text</p>
+                <v-textarea
+                :rules="subjectRules"
+                v-model="forum.postdata"
+                :disabled="!edit"
+                cleareable
+                no-resize
+                rows="3"
+              >{{forum.postdata}}</v-textarea>
               </div>
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-icon large color="white" left @click="reply = true">mdi-reply-all</v-icon>
+              <v-icon medium color="white" left v-if="verifyOwnership(forum.creator.id) && !edit" @click="edit = !edit">mdi-circle-edit-outline</v-icon>
+              <v-icon medium color="#59FF33" left v-if="edit" @click="save">mdi-check-circle-outline</v-icon>
+              <v-icon large color="white" rigth @click="reply = true">mdi-reply-all</v-icon>
             </v-card-actions>
           </v-card>
 
@@ -101,7 +110,7 @@ export default {
   },
   data() {
     return {
-      replyStatus: "",
+      edit: false,
       reply: false,
       replySubject: "",
       db: firebase.firestore(),
@@ -111,12 +120,20 @@ export default {
         subject: "",
         creation_date: "",
         entries: [],
-        creator: ""
+        creator: "",
+        postdata: ""
       },
-      subjectRules: [
+      subjectRules: 
+      [
         subject => !!subject || "Subject is required",
         subject =>
-          subject.length <= 300 || "Title must be less than 300 characters"
+        subject.length <= 300 || "Title must be less than 300 characters"
+      ],
+      postDataRules: 
+      [
+        postData => !!postData || "Subject is required",
+        postData =>
+        postData.length <= 300 || "Title must be less than 300 characters"
       ]
     };
   },
@@ -202,6 +219,40 @@ export default {
     {
       this.status = status
       setTimeout(() => this.status = null, 3000);
+    },
+    save() 
+    {
+      let editStatus = null
+      this.db.collection("entries").doc(this.forum.id).set(
+      {
+        postdata: this.forum.postdata
+      },
+      { 
+        merge: true 
+      }).then(() =>
+      {
+        editStatus  = 
+        {
+            type: 'success',
+            message: 'Your forum was updated',
+            icon: 'mdi-checkbox-marked-circle-outline'
+        }
+      }).catch(function(error) 
+      {
+        editStatus = 
+        {
+          type: "error",
+          message: error.message,
+          icon: "mdi-skull-outline"
+        }
+      });
+      this.edit = false
+      this.showStatus(editStatus)
+    },
+    verifyOwnership(creatorEmail) 
+    {
+      console.log("Logged: " + this.user.data.email)
+      return this.user.data.email === creatorEmail;
     }
   },
   mounted: function() {
@@ -223,14 +274,14 @@ export default {
 .toolbarTitle {
   font-size: 180%;
 }
-.content{
-  margin: 1% 3% 2% 3%;
-}
 .col {
   padding: 0px;
 }
 .v-card__actions {
   padding: 0px;
   background: #1976d2;
+}
+.content{
+  margin: 1% 3% 2% 3%;
 }
 </style>
