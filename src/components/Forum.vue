@@ -135,51 +135,51 @@ export default {
     };
   },
   methods: {
-    replyToForum() {
-        if (this.user) 
+    replyToForum() 
+    {
+      if (this.user) 
+      {
+        this.db.collection("params").doc("lastEntryId").get().then(lastEntryId => 
         {
-            this.db.collection("params").doc("lastEntryId").get().then(lastEntryId => 
+          let newEntryId = (parseInt(lastEntryId.data().value) + 1).toString();
+          this.db.collection("entries").doc(newEntryId).set(
+          {
+              creation_date: new Date(Date.now()),
+              id: newEntryId,
+              creator: this.db.doc("users/" + this.user.data.email),
+              parent: this.db.doc("entries/" + this.forum.id),
+              subject: this.replySubject
+          }).then(() => 
+          {
+            this.db.collection('users').doc(this.user.data.email).update(
             {
-                let newEntryId = (parseInt(lastEntryId.data().value) + 1).toString();
-                this.db.collection("entries").doc(newEntryId).set(
-                {
-                    creation_date: new Date(Date.now()),
-                    id: newEntryId,
-                    creator: this.db.doc("users/" + this.user.data.email),
-                    parent: this.db.doc("entries/" + this.forum.id),
-                    subject: this.replySubject
-                }).then(() => 
-                {
-                  this.db.collection('users').doc(this.user.data.email).update(
-                  {
-                    numEntries: firebase.firestore.FieldValue.increment(1)
-                  });
-                }).catch(function(error) {
-                    let replyStatus  = 
-                    {
-                        type: 'error',
-                        message: error.message,
-                        icon: 'mdi-skull-outline'
-                    }
-                    this.showStatus(replyStatus)
-                });                
-                this.replySubject = ""
-                if(this.status === null)
-                {
-                    this.db.collection("params").doc("lastEntryId").set(
-                    {
-                        value: newEntryId
-                    });
-                    this.reply = false
-                    let replyStatus  = 
-                    {
-                        type: 'success',
-                        message: 'Your reply was posted successfully',
-                        icon: 'mdi-checkbox-marked-circle-outline'
-                    }
-                    this.refresh()
-                    this.showStatus(replyStatus)
-                }
+              numEntries: firebase.firestore.FieldValue.increment(1)
+            });
+            this.db.collection("params").doc("lastEntryId").set(
+            {
+                value: newEntryId
+            });
+            this.reply = false
+            let replyStatus  = 
+            {
+                type: 'success',
+                message: 'Your reply was posted successfully',
+                icon: 'mdi-checkbox-marked-circle-outline'
+            }
+            this.refresh()
+
+            this.showStatus(replyStatus)
+          }).catch(function(error) {
+              // let replyStatus  = 
+              // {
+              //     type: 'error',
+              //     message: error.message,
+              //     icon: 'mdi-skull-outline'
+              // }
+              // this.showStatus(replyStatus)
+              alert(error.message)
+          });                
+          this.replySubject = ""
         });
       }
     },
