@@ -1,8 +1,8 @@
 <template>
-  <div id="app">
+
     <v-layout justify-center>
       <v-flex xs14 sm12 md10>
-        <v-card class="elevation-4" style="margin: 2% 0 ">
+        <v-card class="elevation-1" style="margin: 2% 0 ">
           <v-card-text>
             <div class="forumDetails">
               <v-row style="margin:0px">
@@ -29,10 +29,15 @@
           </v-card-text>
           <v-card-actions>
             <v-icon left color="red" v-if="verifyOwnership(entry.creator.id)" @click="deleteEntry(entry.id)">mdi-trash-can-outline</v-icon>
+            <v-btn  small  text @click="loadReplies">
+              <v-icon>{{ showReplies ? 'mdi-minus' : 'mdi-plus' }}</v-icon> Replies
+              </v-btn>
             <v-spacer></v-spacer>
+            
             <v-icon left v-if="verifyOwnership(entry.creator.id) && !edit" @click="edit = !edit">mdi-circle-edit-outline</v-icon>
             <v-icon left color="#59FF33" v-if="edit" @click="save">mdi-check-circle-outline</v-icon>
-            <v-icon rigth  @click="reply = true">mdi-reply-all</v-icon>
+            <v-btn text fab>
+            <v-icon rigth  @click="reply = true">mdi-reply-all</v-icon></v-btn>
           </v-card-actions>
 
             <v-expansion-panels
@@ -40,14 +45,80 @@
               focusable
               flat
               tile
+              v-if="showReplies"
             >
             <v-expansion-panel
               v-for="answer in answers"
               :key="answer.id"
             >
-              <v-expansion-panel-header>Answer {{i}}</v-expansion-panel-header>
+              <v-expansion-panel-header>
+                  <v-row style="margin:0px">
+                    <v-col cols="4">
+                      <b>Creation Date:</b>
+                      {{answer.creation_date | formatDate}}
+                    </v-col>
+                    <v-col cols="4">
+                      <b>Creator:</b>
+                      {{answer.creator.id}}
+                    </v-col>
+                </v-row>
+              </v-expansion-panel-header>
               <v-expansion-panel-content>
-                <entry  :entry="answer" @refresh="refresh" @showStatus="showStatus"></entry>
+                <v-card class="elevation-3" style="margin: 2% 0 ">
+                  <v-card-text>
+                    
+                    <div class="forumSubject"></div>
+                    <v-textarea
+                      :rules="subjectRules"
+                      v-model="answer.subject"
+                      :disabled="!edit"
+                      cleareable
+                      no-resize
+                      rows="3"
+                    >{{answer.subject}}</v-textarea>
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-icon left color="red" v-if="verifyOwnership(answer.creator.id)" @click="deleteEntry(answer.id)">mdi-trash-can-outline</v-icon>
+                    <v-btn  small  text @click="loadReplies">
+                      <v-icon>{{ showReplies ? 'mdi-minus' : 'mdi-plus' }}</v-icon> Replies
+                      </v-btn>
+                    <v-spacer></v-spacer>
+                    
+                    <v-icon left v-if="verifyOwnership(answer.creator.id) && !edit" @click="edit = !edit">mdi-circle-edit-outline</v-icon>
+                    <v-icon left color="#59FF33" v-if="edit" @click="save">mdi-check-circle-outline</v-icon>
+                    <v-btn text fab>
+                    <v-icon rigth  @click="reply = true">mdi-reply-all</v-icon></v-btn>
+                  </v-card-actions>
+
+                    <v-expansion-panels
+                      multiple
+                      focusable
+                      flat
+                      tile
+                      v-if="showReplies"
+                    >
+                    <v-expansion-panel
+                      v-for="answer in answers"
+                      :key="answer.id"
+                    >
+                      <v-expansion-panel-header>
+                          <v-row style="margin:0px">
+                            <v-col cols="6">
+                              <b>Creation Date:</b>
+                              {{entry.creation_date | formatDate}}
+                            </v-col>
+                            <v-col cols="6">
+                              <b>Creator:</b>
+                              {{entry.creator.id}}
+                            </v-col>
+                        </v-row>
+                      </v-expansion-panel-header>
+                      <v-expansion-panel-content>
+                        <entry  :entry="answer" @refresh="refresh" ></entry>
+                      </v-expansion-panel-content>
+                    </v-expansion-panel>
+                  </v-expansion-panels>
+                </v-card>
               </v-expansion-panel-content>
             </v-expansion-panel>
           </v-expansion-panels>
@@ -83,7 +154,7 @@
             </v-row>
       </v-flex>
     </v-layout>
-  </div>
+ 
 </template>
 
 <script>
@@ -93,6 +164,7 @@ import { mapGetters } from "vuex";
 export default {
   data() {
     return {
+      showReplies: false,
       db: firebase.firestore(),
       edit: false,
       reply: false,
@@ -122,6 +194,22 @@ export default {
   },
   methods: 
   {
+    loadReplies(){
+      this.showReplies = !this.showReplies
+        this.answers = []
+        let docRef = this.db.collection("entries").doc(this.entry.id);
+        
+        this.db.collection("entries").where("parent","==",docRef).get().then((entries)=>{
+          
+          entries.forEach(entry => {
+            this.answers.push(entry.data())
+          });
+          this.answers.sort(function(a, b) {
+            return a.id - b.id
+          });
+        })
+      
+    },
     verifyOwnership(creatorEmail) {
       return this.user.data.email === creatorEmail;
     },
@@ -235,6 +323,8 @@ export default {
             }
             this.refresh()
             this.$emit('showStatus', replyStatus)
+            this.replySubject = ""
+
           }).catch(function(error) {
               // let replyStatus  = 
               // {
@@ -243,8 +333,9 @@ export default {
               //     icon: 'mdi-skull-outline'
               // }
               alert(error.message)
+              this.replySubject = ""
+
           });                
-          this.replySubject = ""
         })
       }
     },

@@ -169,6 +169,7 @@ export default {
             this.refresh()
 
             this.showStatus(replyStatus)
+            this.replySubject = ""
           }).catch(function(error) {
               // let replyStatus  = 
               // {
@@ -178,8 +179,9 @@ export default {
               // }
               // this.showStatus(replyStatus)
               alert(error.message)
+              this.replySubject = ""
           });                
-          this.replySubject = ""
+          
         });
       }
     },
