@@ -76,7 +76,7 @@ export default {
                   parent: null,
                   title: this.title,
                   subject: this.subject,
-                  postData: ""
+                  postdata: ""
               }).then(() => 
               {
                 this.db.collection('users').doc(user.email).update(

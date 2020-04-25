@@ -70,8 +70,7 @@ export default {
       subjectRules: 
       [
         subject => !!subject || "Subject is required",
-        subject =>
-        subject.length <= 300 || "Title must be less than 300 characters"
+        subject => subject.length <= 300 || "Subject must be less than 300 characters"
       ]
     };
   },
