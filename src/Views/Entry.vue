@@ -34,6 +34,23 @@
             <v-icon left color="#59FF33" v-if="edit" @click="save">mdi-check-circle-outline</v-icon>
             <v-icon rigth  @click="reply = true">mdi-reply-all</v-icon>
           </v-card-actions>
+
+            <v-expansion-panels
+              multiple
+              focusable
+              flat
+              tile
+            >
+            <v-expansion-panel
+              v-for="answer in answers"
+              :key="answer.id"
+            >
+              <v-expansion-panel-header>Answer {{i}}</v-expansion-panel-header>
+              <v-expansion-panel-content>
+                <entry  :entry="answer" @refresh="refresh" @showStatus="showStatus"></entry>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
+          </v-expansion-panels>
         </v-card>
         <v-row justify="center">
               <v-dialog v-model="reply" persistent max-width="600px">
@@ -80,13 +97,16 @@ export default {
       edit: false,
       reply: false,
       replySubject: "",
+      answers:[],
       subjectRules: 
       [
         subject => !!subject || "Subject is required",
-        subject => subject.length <= 300 || "Subject must be less than 300 characters"
+        subject =>
+        subject.length <= 300 || "Title must be less than 300 characters"
       ]
     };
   },
+  name:"entry",
   computed: {
     ...mapGetters({
       user: "user"
