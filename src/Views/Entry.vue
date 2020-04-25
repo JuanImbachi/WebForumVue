@@ -27,13 +27,37 @@
               rows="3"
             >{{entry.subject}}</v-textarea>
           </v-card-text>
-          <v-card-actions>
+          <v-card-actions style="background=blue">
             <v-spacer></v-spacer>
             <v-icon v-if="verifyOwnership(entry.creator.id) && !edit" @click="edit = !edit">mdi-tooltip-edit-outline</v-icon>
             <v-icon color="green" v-if="edit" @click="save">mdi-check-circle-outline</v-icon>
             <v-icon color="red" v-if="verifyOwnership(entry.creator.id)" @click="deleteEntry(entry.id)">mdi-trash-can-outline</v-icon>
           </v-card-actions>
+
+          <v-expansion-panels
+      :accordion="accordion"
+      :popout="popout"
+      :inset="inset"
+      :multiple="true"
+      :focusable="focusable"
+      :disabled="disabled"
+      :readonly="readonly"
+      :flat="flat"
+      :hover="hover"
+      :tile="tile"
+    >
+      <v-expansion-panel
+        v-for="(item,i) in 2"
+        :key="i"
+      >
+        <v-expansion-panel-header>Item</v-expansion-panel-header>
+        <v-expansion-panel-content>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+    </v-expansion-panels>
         </v-card>
+        
       </v-flex>
     </v-layout>
   </div>
@@ -160,5 +184,8 @@ export default {
 }
 .col {
   padding: 0px;
+}
+.v-card__actions {
+ background: #dce0e4b2
 }
 </style>

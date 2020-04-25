@@ -34,8 +34,15 @@
               <hr />
             </v-card-subtitle>
             <v-card-text>
-              <div class="forumSubject"></div>
-              <p align="justify">{{forum.subject}}</p>
+              <h3 align="left">Subject:</h3>
+              <div class="content">
+                <p align="justify">{{forum.subject}}</p>
+              </div>
+              <v-divider></v-divider>
+              <h3 align="left">Posdata:</h3>
+              <div class="content">
+                <p align="justify">Posdata Text</p>
+              </div>
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
@@ -210,8 +217,8 @@ export default {
 .toolbarTitle {
   font-size: 180%;
 }
-.forumSubject {
-  margin-top: 2%;
+.content{
+  margin: 1% 3% 2% 3%;
 }
 .col {
   padding: 0px;
