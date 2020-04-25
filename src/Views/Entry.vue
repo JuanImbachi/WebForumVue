@@ -28,10 +28,11 @@
             >{{entry.subject}}</v-textarea>
           </v-card-text>
           <v-card-actions>
+            <v-icon left color="red" v-if="verifyOwnership(entry.creator.id)" @click="deleteEntry(entry.id)">mdi-trash-can-outline</v-icon>
             <v-spacer></v-spacer>
-            <v-icon v-if="verifyOwnership(entry.creator.id) && !edit" @click="edit = !edit">mdi-tooltip-edit-outline</v-icon>
-            <v-icon color="green" v-if="edit" @click="save">mdi-check-circle-outline</v-icon>
-            <v-icon color="red" v-if="verifyOwnership(entry.creator.id)" @click="deleteEntry(entry.id)">mdi-trash-can-outline</v-icon>
+            <v-icon left v-if="verifyOwnership(entry.creator.id) && !edit" @click="edit = !edit">mdi-circle-edit-outline</v-icon>
+            <v-icon left color="#59FF33" v-if="edit" @click="save">mdi-check-circle-outline</v-icon>
+            <v-icon rigth  @click="reply = true">mdi-reply-all</v-icon>
           </v-card-actions>
         </v-card>
       </v-flex>
@@ -53,7 +54,7 @@ export default {
       [
         subject => !!subject || "Subject is required",
         subject =>
-          subject.length <= 300 || "Title must be less than 300 characters"
+        subject.length <= 300 || "Title must be less than 300 characters"
       ]
     };
   },

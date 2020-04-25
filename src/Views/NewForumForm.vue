@@ -75,7 +75,8 @@ export default {
                   creator: this.db.collection('users').doc(user.email),
                   parent: null,
                   title: this.title,
-                  subject: this.subject
+                  subject: this.subject,
+                  postData: ""
               }).then(() => 
               {
                 this.db.collection('users').doc(user.email).update(
