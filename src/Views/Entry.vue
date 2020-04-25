@@ -30,7 +30,7 @@
             <v-icon left color="red" v-if="verifyOwnership(entry.creator.id)" @click="deleteEntry(entry.id)">mdi-trash-can-outline</v-icon>
             <v-btn  small  text @click="loadReplies">
               <v-icon>{{ showReplies ? 'mdi-minus' : 'mdi-plus' }}</v-icon> Replies
-              </v-btn>
+            </v-btn>
             <v-spacer></v-spacer>
             
             <v-icon left v-if="verifyOwnership(entry.creator.id) && !edit" @click="edit = !edit">mdi-circle-edit-outline</v-icon>
@@ -53,7 +53,7 @@
               </v-expansion-panel-header>
 
               <v-expansion-panel-content>
-                <entry  :entry="answer" @refresh="refresh" @showStatus="showStatus" @loadReplies="loadReplies"></entry>
+                <entry  :entry="answer" @refresh="refresh" @showStatus="showStatus" @loadRepliesParent="loadReplies"></entry>
               </v-expansion-panel-content>
 
             </v-expansion-panel>
@@ -133,6 +133,8 @@ export default {
   {
     loadReplies(){
       this.showReplies = !this.showReplies
+      if(this.showReplies)
+      {
         this.answers = []
         let docRef = this.db.collection("entries").doc(this.entry.id);
         
@@ -157,7 +159,7 @@ export default {
             return a.id - b.id
           });
         })
-      
+      }
     },
     verifyOwnership(creatorEmail) {
       return this.user.data.email === creatorEmail;
@@ -221,9 +223,8 @@ export default {
                 message: "Your reply was deleted",
                 icon: 'mdi-checkbox-marked-circle-outline'
               }
-              this.$emit('loadReplies')
               this.$emit('showStatus', deleteStatus)
-              this.$emit('refresh')
+              this.$emit('refreshForum')
           }).catch(function(error) 
           {
             console.error("Error removing document: ", error);
@@ -237,7 +238,6 @@ export default {
             message: "Entries with replies can't be deleted",
             icon: 'mdi-skull-outline'
           }
-          this.refresh()
           this.$emit('showStatus', deleteStatus)
         }
       });
@@ -273,10 +273,10 @@ export default {
                 message: 'Your reply was posted successfully',
                 icon: 'mdi-checkbox-marked-circle-outline'
             }
+            this.showReplies = false
             this.refresh()
             this.showStatus(replyStatus)
             this.replySubject = ""
-
           }).catch(function(error) {
               // let replyStatus  = 
               // {
@@ -285,7 +285,7 @@ export default {
               //     icon: 'mdi-skull-outline'
               // }
               alert(error.message)
-              this.replySubject = ""
+              this.replySubject = null
 
           });                
         })
@@ -294,7 +294,6 @@ export default {
     refresh()
     {
       this.loadReplies()
-      this.$emit('refresh')
     },
     showStatus(replyStatus)
     {

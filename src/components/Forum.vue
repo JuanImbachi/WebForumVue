@@ -3,6 +3,7 @@
     <v-app class="LoginDiv">
       <v-layout justify-center>
         <v-flex xs14 sm12 md10>
+          <v-dialog v-model="status" persistent max-width="600px">
             <v-alert
               v-if="status != null"
               :type="status.type"
@@ -11,6 +12,7 @@
               :icon="status.icon"
               transition="scale-transition"
               >{{status.message}}</v-alert>
+          </v-dialog>
           <v-card class="elevation-12" style="margin-bottom: 5%">
             <v-toolbar color="primary" dark flat align-center>
               <v-btn to="/forums" icon>
@@ -59,7 +61,7 @@
             </v-card-actions>
           </v-card>
 
-          <entry v-for="entry in forum.entries" :key="entry.id" :entry="entry" @refresh="refresh" @showStatus="showStatus"></entry>
+          <entry v-for="entry in forum.entries" :key="entry.id" :entry="entry" @refreshForum="refresh" @showStatus="showStatus"></entry>
             
             <v-row justify="center">
               <v-dialog v-model="reply" persistent max-width="600px">
