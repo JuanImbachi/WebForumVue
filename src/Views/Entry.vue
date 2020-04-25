@@ -99,6 +99,7 @@ import firebase from "../config/firebase";
 import { mapGetters } from "vuex";
 
 export default {
+  name: "entry",
   data() {
     return {
       showReplies: false,
@@ -115,7 +116,6 @@ export default {
       ]
     };
   },
-  name:"entry",
   computed: {
     ...mapGetters({
       user: "user"

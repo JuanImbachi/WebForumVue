@@ -1,24 +1,25 @@
 <template>
     <div class="container">
-        <v-data-table
-        :headers="headers"
-        :items="users"
-        item-key="id"
-        class="elevation-1"
-        :search="search"
-        :custom-filter="filterText"
-        calculate-widths:true
-        >
-        <template v-slot:top>
-            <v-text-field v-model="search" label="Search" class="mx-4"></v-text-field>
-        </template>
-        </v-data-table>
+      <v-data-table
+      :headers="headers"
+      :items="users"
+      item-key="id"
+      class="elevation-1"
+      :search="search"
+      :custom-filter="filterText"
+      calculate-widths:true
+      >
+      <template v-slot:top>
+          <v-text-field v-model="search" label="Search" class="mx-4"></v-text-field>
+      </template>
+      </v-data-table>
     </div>
 </template>
 
 <script>
 import firebase from '../config/firebase'
 export default {
+  name: "users",
     data(){
         return{
             db: firebase.firestore(),

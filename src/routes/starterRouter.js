@@ -22,5 +22,4 @@ export default new Router({
     {path: "/signUp",           name: 'signUp', component: SignUpForm},
     {path: "/updateAccount",    name: 'updateAccount', component: UpdateAccount}
   ],
-  linkActiveClass: 'active',
 });
