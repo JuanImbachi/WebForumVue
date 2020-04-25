@@ -42,15 +42,46 @@
               tile
             >
             <v-expansion-panel
-              
+              v-for="answer in answers"
+              :key="answer.id"
             >
               <v-expansion-panel-header>Answer {{i}}</v-expansion-panel-header>
               <v-expansion-panel-content>
+                <entry  :entry="answer" @refresh="refresh" @showStatus="showStatus"></entry>
               </v-expansion-panel-content>
             </v-expansion-panel>
           </v-expansion-panels>
         </v-card>
-        
+        <v-row justify="center">
+              <v-dialog v-model="reply" persistent max-width="600px">
+                <v-card>
+                  <v-card-title>
+                    <span class="headline">Reply</span>
+                  </v-card-title>
+                  <v-card-text>
+                    <v-container>
+                      <v-row>
+                        <v-col cols="12" md="12">
+                          <v-textarea
+                            outlined
+                            :counter="300"
+                            label="Subject"
+                            :rules="subjectRules"
+                            v-model="replySubject"
+                          ></v-textarea>
+                        </v-col>
+                      </v-row>
+                    </v-container>
+                    <small>*indicates required field</small>
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="white" text @click="reply = false">Close</v-btn>
+                    <v-btn color="white" text @click="replyToForum">Save</v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
+            </v-row>
       </v-flex>
     </v-layout>
   </div>
@@ -65,12 +96,15 @@ export default {
     return {
       db: firebase.firestore(),
       edit: false,
+      reply: false,
+      replySubject: "",
       editStatus: null,
       answers:[],
       subjectRules: 
       [
         subject => !!subject || "Subject is required",
-        subject => subject.length <= 300 || "Subject must be less than 300 characters"
+        subject =>
+        subject.length <= 300 || "Title must be less than 300 characters"
       ]
     };
   },
