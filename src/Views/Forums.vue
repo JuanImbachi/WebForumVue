@@ -2,7 +2,7 @@
   <div id="app">
     <v-app class="LoginDiv">
       <v-layout justify-center>
-        <v-flex xs12 sm8 md6>
+        <v-flex xs10 sm10 md10>
             <v-alert
               v-if=" newForumStatus != null"
               :type="newForumStatus.type"
@@ -38,14 +38,17 @@
               </template>
 
               <template v-if="user.loggedIn" v-slot:item.actions="{ item }" align-left>
-                <div class="itemAction">
-                  <v-icon color="blue" @click="moreDetails(item)">mdi-arrow-right-bold-circle-outline</v-icon>
-                  <v-icon
-                    v-if="verifyDelete(item.creator)"
-                    color="red"
-                    @click="deleteForum(item)"
-                    >mdi-trash-can-outline</v-icon>
+                <div class="actionItems">
+
+                  <div class="itemAction">
+                    <v-icon color="blue" @click="moreDetails(item)">mdi-arrow-right-bold-circle-outline</v-icon>
                   </div>
+
+                  <div class="itemAction">
+                    <v-icon v-if="verifyDelete(item.creator)" color="red" @click="deleteForum(item)">mdi-trash-can-outline</v-icon>
+                  </div>
+
+                </div>
               </template>
 
               <template v-slot:top>
@@ -218,8 +221,12 @@ export default {
 .v-dialog_content {
     overflow-y:hidden;
 }
-.itemAction{
+.actionItems{
   float: left;
+}
+.itemAction{
+  display: inline;
+  margin-left: 20px;
 }
 .v-dialog {
     width: 50%;
