@@ -29,9 +29,9 @@
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-icon v-if="verifyEdit(entry.creator.id) && !edit" @click="edit = !edit">mdi-tooltip-edit-outline</v-icon>
+            <v-icon v-if="verifyOwnership(entry.creator.id) && !edit" @click="edit = !edit">mdi-tooltip-edit-outline</v-icon>
             <v-icon color="green" v-if="edit" @click="save">mdi-check-circle-outline</v-icon>
-            <v-icon color="red" v-if="edit" @click="save">mdi-trash-can-outline</v-icon>
+            <v-icon color="red" v-if="verifyOwnership(entry.creator.id)" @click="deleteEntry(entry.id)">mdi-trash-can-outline</v-icon>
           </v-card-actions>
         </v-card>
       </v-flex>
@@ -63,14 +63,16 @@ export default {
     })
   },
   props: ["entry"],
-  filters: {
+  filters: 
+  {
     formatDate: function(value) {
       if (!value) return "";
       return new Date(value.seconds * 1000).toLocaleDateString("es-ES");
     }
   },
-  methods: {
-    verifyEdit(creatorEmail) {
+  methods: 
+  {
+    verifyOwnership(creatorEmail) {
       return this.user.data.email === creatorEmail;
     },
     save() 
@@ -99,9 +101,54 @@ export default {
             this.$emit('refresh')
             this.$emit('showStatus', editStatus)
         }
+    },
+    deleteEntry(entryId) 
+    {
+      this.db.collection("entries").get().then(entries => 
+      {
+        let deletable = true;
+        for (let index = 0; index < entries.docs.length && deletable; index++) 
+        {
+          const entry = entries.docs[index];
+          if(entry.data().parent != null && entry.data().parent.id === entryId)
+          {
+            deletable = false
+          }
+        }
+        if (deletable) 
+        {
+          this.db.collection("entries").doc(entryId).delete().then(() => 
+          {
+              console.log("Document successfully deleted!");
+              this.$emit('refresh')
+              let deleteStatus  = 
+              {
+                type: 'success',
+                message: "Your reply was deleted",
+                icon: 'mdi-checkbox-marked-circle-outline'
+              }
+              this.$emit('showStatus', deleteStatus)
+          }).catch(function(error) 
+          {
+            console.error("Error removing document: ", error);
+          });
+        } 
+        else 
+        {
+          let deleteStatus  = 
+          {
+            type: 'error',
+            message: "Entries with replies can't be deleted",
+            icon: 'mdi-skull-outline'
+          }
+          this.$emit('showStatus', deleteStatus)
+        }
+      });
     }
   }
-};
+}
+
+
 </script>
 
 <style scoped>
