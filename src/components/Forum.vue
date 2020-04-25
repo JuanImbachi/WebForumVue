@@ -127,6 +127,12 @@ export default {
                     creator: this.db.doc("users/" + this.user.data.email),
                     parent: this.db.doc("entries/" + this.forum.id),
                     subject: this.replySubject
+                }).then(() => 
+                {
+                  this.db.collection('users').doc(this.user.data.email).update(
+                  {
+                    numEntries: firebase.firestore.FieldValue.increment(1)
+                  });
                 }).catch(function(error) {
                     let replyStatus  = 
                     {

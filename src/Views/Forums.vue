@@ -157,6 +157,10 @@ export default {
                   message: "Your forum was deleted",
                   icon: 'mdi-checkbox-marked-circle-outline'
                 }
+                this.db.collection('users').doc(this.user.data.email).update(
+                {
+                  numEntries: firebase.firestore.FieldValue.increment(-1)
+                });
                 this.showNewForumStatus(newForumStatus)
             })
             .catch(function(error) {

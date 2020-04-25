@@ -104,7 +104,8 @@ export default {
                 {
                     name: this.name,
                     lastname: this.lastname,
-                    active: true
+                    active: true,
+                    numEntries: 0
                 })
                 .then(() => 
                 {
