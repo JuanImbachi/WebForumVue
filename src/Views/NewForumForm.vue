@@ -2,6 +2,9 @@
   <div id="app">
     <v-card class="elevation-12">
       <v-toolbar color="primary" dark flat align-center>
+        <v-btn @click="closeForum" icon>
+                <v-icon x-large>mdi-arrow-left-circle</v-icon>
+          </v-btn>
         <v-spacer />
         <v-toolbar-title class="toolbarTitle">New Forum</v-toolbar-title>
         <v-spacer />
@@ -21,7 +24,6 @@
         <v-col cols="12" md="12">
           <v-textarea
             outlined
-            :counter="300"
             label="Forum Subject"
             :rules="subjectRules"
             v-model="subject"
@@ -56,12 +58,13 @@ export default {
       ],
       subjectRules: [
         subject => !!subject || "Subject is required",
-        subject =>
-          subject.length <= 300 || "Title must be less than 300 characters"
-      ]
+        ]
     };
   },
   methods: {
+    closeForum(){
+      this.$emit("closeForumForm")
+    },
     addForum() {
       let user = firebase.auth().currentUser;
       if (user) {

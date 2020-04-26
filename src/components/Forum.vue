@@ -3,15 +3,19 @@
     <v-app class="LoginDiv">
       <v-layout justify-center>
         <v-flex xs14 sm12 md10>
-          <v-dialog v-model="status">
-            <v-alert
-              v-if="status != null"
-              :type="status.type"
-              outlined
-              text
-              :icon="status.icon"
-              transition="scale-transition"
-              >{{status.message}}</v-alert>
+          <v-dialog v-model="deletedialog">
+            <v-card v-model="deletedialog">
+                <v-alert
+                  v-if="status != null"
+                  :type="status.type"
+                  outlined
+                  text
+                  :icon="status.icon"
+                  transition="scale-transition"
+                  >{{status.message}}
+                </v-alert>
+            </v-card>
+            
           </v-dialog>
           <v-card class="elevation-12" style="margin-bottom: 5%">
             <v-toolbar color="primary" dark flat align-center>
@@ -44,19 +48,16 @@
               <h3 align="left">Posdata:</h3>
               <div class="content">
                 <v-textarea
-                :rules="postdataRules"
                 v-model="forum.postdata"
-                :disabled="!edit"
+                :readonly="!edit"
                 cleareable
-                no-resize
-                rows="3"
               >{{forum.postdata}}</v-textarea>
               </div>
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-icon medium color="white" left v-if="verifyOwnership(forum.creator.id) && !edit" @click="edit = !edit">mdi-circle-edit-outline</v-icon>
-              <v-icon medium color="#59FF33" left v-if="edit" @click="save">mdi-check-circle-outline</v-icon>
+              <v-icon medium color="#59FF33" left v-if="edit" @click="save" >mdi-check-circle-outline</v-icon>
               <v-icon large color="white" rigth @click="reply = true">mdi-reply-all</v-icon>
             </v-card-actions>
           </v-card>
@@ -65,30 +66,28 @@
             
             <v-row justify="center">
               <v-dialog v-model="reply" persistent max-width="600px">
-                <v-card>
+                <v-card v-model="valid">
                   <v-card-title>
                     <span class="headline">Reply</span>
                   </v-card-title>
                   <v-card-text>
-                    <v-container>
-                      <v-row>
-                        <v-col cols="12" md="12">
-                          <v-textarea
-                            outlined
-                            :counter="300"
-                            label="Subject"
-                            :rules="subjectRules"
-                            v-model="replySubject"
-                          ></v-textarea>
-                        </v-col>
-                      </v-row>
-                    </v-container>
+                    
+                    <v-form >
+                        <v-container>
+                            <v-textarea
+                              outlined
+                              label="Subject"
+                              :rules="subjectRules"
+                              v-model="replySubject"
+                            ></v-textarea>
+                          </v-container>
+                    </v-form>
                     <small>*indicates required field</small>
                   </v-card-text>
                   <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn color="white" text @click="reply = false">Close</v-btn>
-                    <v-btn color="white" text @click="replyToForum">Save</v-btn>
+                    <v-btn type="submit" color="white" text @click="replyToForum" >Save</v-btn>
                   </v-card-actions>
                 </v-card>
               </v-dialog>
@@ -113,6 +112,8 @@ export default {
   },
   data() {
     return {
+      valid:true,
+      deletedialog: null,
       edit: false,
       reply: false,
       replySubject: "",
@@ -126,15 +127,9 @@ export default {
         creator: "",
         postdata: ""
       },
-      subjectRules: 
-      [
+      subjectRules: [
         subject => !!subject || "Subject is required",
-        subject => subject.length <= 300 || "Subject must be less than 300 characters"
-      ],
-      postdataRules: 
-      [
-        postdata => postdata.length <= 300 || "Postdata must be less than 300 characters"
-      ]
+        ]
     };
   },
   methods: {
@@ -172,8 +167,9 @@ export default {
             this.refresh()
 
             this.showStatus(replyStatus)
+            
             this.replySubject = ""
-          }).catch(function(error) {
+          }).catch(function() {
               // let replyStatus  = 
               // {
               //     type: 'error',
@@ -181,7 +177,6 @@ export default {
               //     icon: 'mdi-skull-outline'
               // }
               // this.showStatus(replyStatus)
-              alert(error.message)
               this.replySubject = ""
           });                
           
@@ -219,8 +214,9 @@ export default {
     },
     showStatus(status)
     {
+      this.deletedialog = {}
       this.status = status
-      setTimeout(() => this.status = null, 3000);
+      setTimeout(() => {this.status = null;this.deletedialog = null}, 2000);
     },
     save() 
     {
@@ -278,6 +274,9 @@ export default {
 }
 .col {
   padding: 0px;
+}
+.v-alert{
+  margin: 0px;
 }
 .v-card__actions {
   padding: 0px;

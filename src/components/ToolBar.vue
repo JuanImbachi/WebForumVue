@@ -10,12 +10,29 @@
     
     <v-toolbar-items>
       <template v-if="user.loggedIn">
-        <v-btn text @click="enableOptions = !enableOptions">{{user.data.email}}</v-btn>
-        <template v-if="enableOptions" class="options">
-          <v-btn @click="signOut" text>Sign Out</v-btn>
-          <v-btn @click="deleteOption = !deleteOption" text>Delete Account</v-btn>
-          <v-btn @click="editAccount" text>Edit Account</v-btn>
+        <v-btn text  color="white">{{user.data.email}}</v-btn>
+        
+        <v-menu transition="slide-y-transition" offset-y>
+        <template v-slot:activator="{ on }">
+          <v-btn  text  v-on="on"><v-icon >mdi-menu</v-icon></v-btn>
         </template>
+        
+          <v-list dense align=left>
+            <v-list-item @click="editAccount">
+              <v-list-item-title> <v-icon left> mdi-account-edit-outline</v-icon>Edit Account</v-list-item-title>
+            </v-list-item>
+
+            <v-list-item @click="signOut">
+              <v-list-item-title> <v-icon left> mdi-close-octagon-outline</v-icon>Sign Out</v-list-item-title>
+            </v-list-item>
+
+            <v-list-item @click="deleteOption = true">
+              <v-list-item-title> <v-icon left> mdi-close-octagon-outline</v-icon>Delete Account</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+
+
       </template>
       <template v-else>
         <v-btn to="/logIn" text>

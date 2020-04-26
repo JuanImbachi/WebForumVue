@@ -17,7 +17,7 @@
               <v-spacer></v-spacer>
 
               <v-dialog v-model="add">
-                <newforumform v-if="add" @notifyNewForum="forumAdded" @notifyNewForumStatus="showNewForumStatus"></newforumform>
+                <newforumform v-if="add" @notifyNewForum="forumAdded" @notifyNewForumStatus="showNewForumStatus" @closeForumForm="closeForumForm"></newforumform>
               </v-dialog>
 
               <v-btn v-if="user.loggedIn" small fab dark color="blue" @click="add = !add">
@@ -137,6 +137,9 @@ export default {
     forumAdded() {
       this.add = false;
       this.refresh();
+    },
+    closeForumForm() {
+      this.add = false;
     },
     deleteForum(item) {
       this.db.collection("entries").get().then(entries => 
