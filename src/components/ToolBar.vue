@@ -13,7 +13,7 @@
         <v-btn text @click="enableOptions = !enableOptions">{{user.data.email}}</v-btn>
         <template v-if="enableOptions" class="options">
           <v-btn @click="signOut" text>Sign Out</v-btn>
-          <v-btn @click="deleteOption = true" text>Delete Account</v-btn>
+          <v-btn @click="deleteOption = !deleteOption" text>Delete Account</v-btn>
           <v-btn @click="editAccount" text>Edit Account</v-btn>
         </template>
       </template>
@@ -27,42 +27,42 @@
       </template>
     </v-toolbar-items>
     <v-dialog v-model="deleteOption" persistent max-width="600px">
-    <v-card>
-      <v-card-title>
-        <span class="headline">Delete Account</span>
-      </v-card-title>
-      <v-card-text>
-        <v-container>
-          <v-row>
-            <v-col cols="12" md="12">
-              <v-text-field
-                v-model="confirmpassword"
-                :append-icon="showpassword ? 'mdi-eye' : 'mdi-eye-off'"
-                :type="showpassword ? 'text' : 'password'"
-                label="Confirm password to delete account"
-                @click:append="showpassword = !showpassword"
-                prepend-icon="mdi-lock"
-                @keyup.enter="deleteAccount"
-            ></v-text-field>
-            <v-alert
-            v-if="status != null"
-            :type="status.type"
-            outlined
-            text
-            :icon="status.icon"
-            transition="scale-transition"
-            >{{status.message}}</v-alert>
-            </v-col>
-          </v-row>
-        </v-container>
-      </v-card-text>
-      <v-card-actions style="background-color:#1976d2">
-        <v-spacer></v-spacer>
-        <v-btn color="white" text @click="deleteOption = false">Close</v-btn>
-        <v-btn color="white" text @click="deleteAccount">Delete</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+      <v-card>
+        <v-card-title>
+          <span class="headline">Delete Account</span>
+        </v-card-title>
+        <v-card-text>
+          <v-container>
+            <v-row>
+              <v-col cols="12" md="12">
+                <v-text-field
+                  v-model="confirmpassword"
+                  :append-icon="showpassword ? 'mdi-eye' : 'mdi-eye-off'"
+                  :type="showpassword ? 'text' : 'password'"
+                  label="Confirm password to delete account"
+                  @click:append="showpassword = !showpassword"
+                  prepend-icon="mdi-lock"
+                  @keyup.enter="deleteAccount"
+                ></v-text-field>
+              <v-alert
+              v-if="status != null"
+              :type="status.type"
+              outlined
+              text
+              :icon="status.icon"
+              transition="scale-transition"
+              >{{status.message}}</v-alert>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-card-text>
+        <v-card-actions style="background-color:#1976d2">
+          <v-spacer></v-spacer>
+          <v-btn color="white" text @click="deleteOption = false">Close</v-btn>
+          <v-btn color="white" text @click="deleteAccount">Delete</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-toolbar>
 </template>
 
@@ -71,7 +71,7 @@ import { mapGetters } from "vuex";
 import firebase from "firebase";
 
 export default {
-  name: "App",
+  name: "Toolbar",
   computed: {
     ...mapGetters({
       user: "user"
@@ -101,96 +101,64 @@ export default {
         }
         });
     },
-    deleteAccount() {
-      let deleteError =  false
+    deleteAccount() 
+    {
       this.enableOptions = false
-      this.db.collection('entries').get().then((entries) =>
+      this.db.collection('users').doc(this.user.data.email).get().then((userProfile) =>
       {
-        let deletable = true
-        console.log("Se revisarán: " + entries.size + " entries")
-        for (let index = 0; index < entries.size && deletable; index++) 
-        {
-          const entry = entries.docs[index];
-          console.log("Creador Entry 1: " + entry.data().creator.id)
-          console.log("Usuario a borrar: " + this.user.data.email)
-          if(entry.data().creator.id === this.user.data.email)
-          {
-            deletable = false
-          }
-        }
-        console.log("Se revisaron las entries: deletable: " + deletable)
-        let deleteAccountStatus = null
-        if(deletable)
+        if(userProfile.data().numEntries == 0)
         {
           let user = firebase.auth().currentUser
           var credential = firebase.auth.EmailAuthProvider.credential(user.email, this.confirmpassword)
           user.reauthenticateWithCredential(credential).then(() => 
           {
-            console.log(user.email)
-            this.db.collection("users").doc(user.email).delete().then(function() 
+            this.db.collection("users").doc(user.email).delete().then(() => 
             {
-              console.log("User profile deleted ");
-              user.delete().then(function() 
+              console.log("User account deleted")
+              user.delete().then(() => 
               {
                 console.log("User account deleted")
+                let deleteAccountStatus  = 
+                {
+                    type: 'success',
+                    message: 'Your account was deleted successfully',
+                    icon: 'mdi-checkbox-marked-circle-outline'
+                }
+                this.showStatus(deleteAccountStatus)
               }).catch((error) => 
               {
-                deleteAccountStatus  = 
+                let deleteAccountStatus  = 
                 {
                     type: 'error',
                     message: error.message,
                     icon: 'mdi-skull-outline'
                 }
-                deleteError = true
+                this.showStatus(deleteAccountStatus)
               })
             }).catch((error)=>
             {
-              deleteAccountStatus  = 
+              let deleteAccountStatus  = 
               {
                   type: 'error',
                   message: error.message,
                   icon: 'mdi-skull-outline'
               }
-              deleteError = true
+              this.showStatus(deleteAccountStatus)
             })
           }).catch((error) => 
           {
-            if(error.code === "auth/wrong-password")
+            let deleteAccountStatus  = 
             {
-              deleteAccountStatus  = 
-              {
-                  type: 'error',
-                  message: error.message,
-                  icon: 'mdi-skull-outline'
-              }
-            }
-            else if(error.code === "auth/too-many-requests")
-            {
-              deleteAccountStatus  = 
-              {
-                  type: 'error',
-                  message: error.message,
-                  icon: 'mdi-skull-outline'
-              }
-            }
-            deleteError = true
-          }).finally(() => 
-          {
-            if(deleteError == false)
-            {
-              deleteAccountStatus  = 
-              {
-                  type: 'success',
-                  message: 'Your account was deleted successfully',
-                  icon: 'mdi-checkbox-marked-circle-outline'
-              }
+                type: 'error',
+                message: error.message,
+                icon: 'mdi-skull-outline'
             }
             this.showStatus(deleteAccountStatus)
           })
         }
         else
         {
-          deleteAccountStatus  = 
+          let deleteAccountStatus  = 
           {
               type: 'error',
               message: "Accounts with entries can't be deleted",
@@ -200,7 +168,13 @@ export default {
         }
       }).catch(error =>
       {
-        console.log(error.message)
+        let deleteAccountStatus  = 
+        {
+            type: 'error',
+            message: error.message,
+            icon: 'mdi-skull-outline'
+        }
+        this.showStatus(deleteAccountStatus)
       }).finally(() =>
       {
         this.confirmpassword = ""

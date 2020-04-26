@@ -102,6 +102,7 @@
 import firebase from '../config/firebase'
 import { mapGetters } from "vuex";
 export default {
+    name: "updateaccount",
     data(){
         return{
             status: null,

@@ -67,6 +67,7 @@ import firebase from "../config/firebase";
 import { mapGetters } from "vuex";
 import newforumform from "./NewForumForm";
 export default {
+  name: "forums",
   data() {
     return {
       db: firebase.firestore(),

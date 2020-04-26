@@ -42,6 +42,7 @@
 import firebase from "../config/firebase";
 
 export default {
+  name: "newforumform",
   data() {
     return {
       newForumStatus: null,

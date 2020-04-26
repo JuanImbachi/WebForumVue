@@ -65,6 +65,7 @@
 import firebase from '../config/firebase'
 import { mapGetters } from "vuex";
 export default {
+    name: "signupform",
     data(){
         return{
             db: firebase.firestore(),

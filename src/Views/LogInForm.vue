@@ -68,6 +68,7 @@
 <script>
 import firebase from '../config/firebase'
 export default {
+    name: "loginform",
     data(){
         return{
             status: null,

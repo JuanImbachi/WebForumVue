@@ -1,9 +1,9 @@
 <template>
-  <div id="app">
+  <div id="App">
     <v-app class="LoginDiv">
       <v-layout justify-center>
         <v-flex xs14 sm12 md10>
-          <v-dialog v-model="status" persistent max-width="600px">
+          <v-dialog v-model="status">
             <v-alert
               v-if="status != null"
               :type="status.type"
@@ -105,6 +105,7 @@ import { mapGetters } from "vuex";
 import entry from "../Views/Entry";
 
 export default {
+  name: "Forum",
   computed: {
     ...mapGetters({
       user: "user"
