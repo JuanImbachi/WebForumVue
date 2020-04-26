@@ -211,4 +211,7 @@ export default {
 .container {
     padding-bottom: 0;
 }
+.theme--dark.v-toolbar.v-sheet {
+    max-height: fit-content;
+}
 </style>
